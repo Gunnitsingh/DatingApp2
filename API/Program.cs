@@ -1,5 +1,6 @@
 using API.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +12,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DataContext>(opt =>
 {
-    opt.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=DatingApp2;");
+    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultString"));
 });
+builder.Services.AddCors();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -23,7 +25,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors(x=>x.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod() );
 app.UseAuthorization();
 
 app.MapControllers();
