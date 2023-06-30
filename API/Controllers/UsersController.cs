@@ -1,5 +1,7 @@
 ﻿using API.Data;
 using API.Entities;
+using API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,15 +9,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UsersController : ControllerBase
+    [Authorize]   
+    public class UsersController : BaseApiController
     {
         private readonly DataContext _dataContext;
 
-        public UsersController(DataContext dataContext)
+        public ITokenService _tokenService { get; }
+
+        public UsersController(DataContext dataContext, ITokenService tokenService)
         {
             _dataContext = dataContext;
+            _tokenService = tokenService;
         }
         // GET: api/<UsersController>
         [HttpGet]
