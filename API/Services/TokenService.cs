@@ -18,7 +18,7 @@ namespace API.Services
         {
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.NameId, user.UserName)
+                new Claim(JwtRegisteredClaimNames.NameId,user.UserName)
             };
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
@@ -29,9 +29,10 @@ namespace API.Services
                 Expires = DateTime.Now.AddDays(7),
                 SigningCredentials = creds
             };
+
             var tokenHandler = new JwtSecurityTokenHandler();
-            
-            var token  = tokenHandler.CreateToken(tokenDescriptor);
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return tokenHandler.WriteToken(token);
         }

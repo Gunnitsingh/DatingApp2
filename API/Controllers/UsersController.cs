@@ -1,9 +1,9 @@
-﻿using API.Data;
+﻿using API.DTOs;
 using API.Entities;
 using API.Interfaces;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -12,27 +12,33 @@ namespace API.Controllers
     [Authorize]   
     public class UsersController : BaseApiController
     {
-        private readonly DataContext _dataContext;
 
-        public ITokenService _tokenService { get; }
+        public readonly IUserRepository UserRepository;
+        private readonly IMapper _mapper;
 
-        public UsersController(DataContext dataContext, ITokenService tokenService)
+        public UsersController(IUserRepository userRepository, IMapper mapper)
         {
-            _dataContext = dataContext;
-            _tokenService = tokenService;
+           
+            UserRepository = userRepository;
+            _mapper = mapper;
         }
         // GET: api/<UsersController>
+       
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
         {
-            return await _dataContext.Users.ToListAsync();
+            return Ok(await UserRepository.GetMembersAsync());
+
+            
         }
 
         // GET api/<UsersController>/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<AppUser>> GetUser(int id)
+        [HttpGet("{username}")]
+        public async Task<ActionResult<MemberDto>> GetUser(string username)
         {
-            return await _dataContext.Users.FindAsync(id);
+           var user =  await UserRepository.GetMemberByUsernameAsync(username);  
+
+            return Ok(user);
         }
 
         // POST api/<UsersController>

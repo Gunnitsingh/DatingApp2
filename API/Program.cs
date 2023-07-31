@@ -1,11 +1,7 @@
 using API.Data;
 using API.Extensions;
-using API.Interfaces;
-using API.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using API.Middleware;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddIdentityservice(builder.Configuration);
 var app = builder.Build();
-
+app.UseMiddleware<ExceptionMddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -32,4 +28,17 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+using var scope = app.Services.CreateScope();
+var service = scope.ServiceProvider;
+try
+{
+    var context = service.GetRequiredService<DataContext>();
+    await context.Database.MigrateAsync();
+    await Seed.SeedUser(context);
+}
+catch (Exception ex)
+{
+    var logger = service.GetRequiredService<ILogger>();
+    logger.LogError(ex, "An error occurred");
+}
 app.Run();
