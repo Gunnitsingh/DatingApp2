@@ -4,6 +4,7 @@ using API.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -48,9 +49,16 @@ namespace API.Controllers
         }
 
         // PUT api/<UsersController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut]
+        public async Task<ActionResult> UpdateUser(MemberUpdateDto memberUpdateDto) 
         {
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await UserRepository.GetUserByNameAsync(username);
+            if(user == null) return NotFound();
+            _mapper.Map(memberUpdateDto, user);
+            if(await UserRepository.SaveAllAsync()) return NoContent();
+
+            return BadRequest("Fail to save changes");
         }
 
         // DELETE api/<UsersController>/5
