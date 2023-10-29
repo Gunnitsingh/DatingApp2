@@ -63,5 +63,10 @@ namespace API.Data
         {
             context.Entry(user).State = EntityState.Modified;
         }
+
+        public async void SaveChanges()
+        {
+             await context.SaveChangesAsync();
+        }
     }
 }
